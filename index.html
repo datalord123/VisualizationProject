@@ -41,6 +41,15 @@
    		 			  width: 90px;
    		 			  padding-right: 10px; }
 
+   		 .explanation { font-size: 13px;
+   		 			  font-style: italic;
+   		 			  width:600px;
+   		 			  padding:25px;
+   		 			  border: 25px solid navy;
+   		 			  margin:25px;
+   		 			  float:right;
+   		 			  position:relative;}			  
+
    		 .clearfix { clear: both; }
 
    		 .bar { fill: SteelBlue; }
@@ -56,15 +65,18 @@
    		  </head> 
    		  <body>
    		   <script src="http://d3js.org/d3.v3.min.js"></script>
-   		    <script> 
+   		    <script>
+   		    //Define Start Year 
    		    var year ='1975-1979';
 
-   		    var buttonPeriod = ['1975-1979','1980-1984','1985-1989','1990-1994','1995-1999','2000-2004','2005-2009','2010-2014','2015-2019','2020-2024','2025-2029','2030-2034','2035-2039','2040-2044','2045-2049']; //Define the period that I want to see
+			//Define the periods that I want to see
+   		    var buttonPeriod = ['1975-1979','1980-1984','1985-1989','1990-1994','1995-1999','2000-2004','2005-2009','2010-2014','2015-2019','2020-2024','2025-2029','2030-2034','2035-2039','2040-2044','2045-2049']; 
 
-   		    //Define Structural variables
+   		    //Define Structural variables 
 			var margin = {top: 30, right: 0, bottom: 0, left: 100}, 
 				width = 500 - margin.left - margin.left,
 				height = 450 - margin.top - margin.bottom;
+
 
 		   var body = d3.select("body");
 
@@ -72,12 +84,12 @@
 					.range([0, width]);
 
 		   var y = d3.scale.ordinal()
-					.rangeBands([0, height], 0.2, 0);
+					.rangeBands([0, height], 0.2, 0); //Interval, padding between bands, no outer padding
 		   
 		   var xAxis = d3.svg.axis()
 		    			.scale(x)
 		    			.orient("top")
-		    			.ticks(5,'%');
+		    			.ticks(8,'%');
 
 		   var yAxis = d3.svg.axis()
 		   				 .scale(y)
@@ -86,30 +98,32 @@
 		   function keys(d){
 		   	return d.age;
 		   }
-		   //Add Tital
+		   //Add Title
 		   body.append("h2")
-		   	   .text("Births by Age of Mother-USA");
+		   	   .text("Births by Age of Mother: USA")
+		   	   //.attr('class','clearfix');
+		   	   
 		   //Add playAll Button 
 		   var playAll = body.append('div')
 		   		.attr('class','play-button')
 		   		.text('PLAY ALL YEARS');
+
 		   	//Add iteration buttons
 		   	var buttons=body.append("div")
 		   		.attr("class", "buttons-container")
 		   		.selectAll("div").data(buttonPeriod)
-		   		.enter().append("div")
-		   		.text(function(d) { return d; })
-		   		.attr("class", function(d) {
-		   			 if(d == year) 
-		   			 	return "button selected";
+		   		.enter().append("div") //Enter Div for every datum in buttonPeriod array
+		   		.text(function(d) { return d; }) //for each div return each datum as text  
+		   		.attr("class", function(d) { // class "active" logic
+		   			 if(d == year) //if datum equals "year" 
+		   			 	return "button selected"; //assign class "button selected"
 		   			 else 
-		   			 	return "button"; });
+		   			 	return "button"; }); //if datum does not equal "year" just return class button
 
+		   //Add psuedo-axis labels
+		   //clear fix so that leged doesn't allow anything floating to left or right of it.
 		   body.append('div')
-		   	   .attr('class','clearfix')
-
-		   body.append('div')
-		   	   .attr('class','top-label age-label')
+		   	   .attr('class','top-label age-label  clearfix')
 		   	   .append('p')
 		   	   	.text('age group');
 
@@ -118,28 +132,46 @@
 		   		.append("p")
 		   		.text("Portion Of Total Births");
 
+		   //Why can't I merge this code with SVG???? I should be able to make this chunk redundant
 		   body.append("div")
 		   		.attr('class','clearfix') 
- 			//Load the datafile, all code beyond this should be tied to data
-		   	d3.csv('allData-Births.csv',function(error,data){
-			var BirthData = data.filter(function(element) {return element.year == year});
-			//Define the ranged on x and y scaler functions
-			x.domain([0,d3.max(data, function(element) {return element.value})]);
-			y.domain(BirthData.map(function(element) {return element.age}))
 
-			//Create the SVG element
+			//Create the SVG container
 		   	var svg = body.append('svg')
 		   		.attr('width',width+margin.left+margin.right)
 		   		.attr('height',height+margin.top+margin.bottom)
-		   		.append('g')
-		   			.attr('transform','translate('+margin.left + ','+margin.top+')');
+
+		   //Move Chart in and down inside svg so that you can see axis
+		   var chart = svg.append('g')
+		   		.attr('transform','translate('+margin.left + ','+margin.top+')');
 
 		   	//Append Group element for chart
-		   	var barGroup = svg.append('g')
-		   		.attr('class','bar');	
-		    //Add the bars to the chart
+		   	var barGroup = chart.append('g')
+		   		.attr('class','bar');
+
+		   //Add the Explanation Text
+		   var Detail=body.append("div")
+		   		.attr("class","explanation")
+		   		.append('p')
+		   			.text('dfad')
+			
+			var playInterval;
+ 			//Load the datafile, all code beyond this should be tied to data
+		   	
+		   	d3.csv('allData-Births.csv',function(error,data){
+			// filter data to show only where d.year = year defined above
+			var BirthData = data.filter(function(d) {return d.year == year});
+
+			//Define the ranged on x and y scaler functions
+			//Note**: X axis range isfor ALL data not birthdata, should be comprehensive range
+			// Not ranged by max of each snapshot, easier for comparison
+			//Define y axis as the age groups in snapshot, should be consistant use this b/c 
+			//smaller data array
+			x.domain([0,d3.max(data, function(d) {return d.value})]);
+			y.domain(BirthData.map(function(d) {return d.age}))
+		    //Add the Initial bars to the chart, Use Birthdata as start year
 		   	var bars=barGroup.selectAll('rect')
-		   		.data(BirthData,keys)
+		   		.data(BirthData,keys) //Use age as index so don't have to worry about data being out of order
 		   		.enter()
 		   		.append('rect') //Define the bar attributes
 		   			.attr('x',0)
@@ -148,11 +180,11 @@
 		   			.attr('height',y.rangeBand());
 
 		   	//Add the axis
-		   	svg.append('g')
+		   	chart.append('g')
 		   		.call(xAxis)
 		   		.attr('class','x axis')
 
-		   	svg.append('g')
+		   	chart.append('g')
 		   		.call(yAxis)
 		   		.attr('class','y axis')
 		   	
@@ -161,34 +193,35 @@
 		   		update(d);
 		   		clearInterval(playInterval);}); //Enable Stop functionality
 
-		   	var playInterval;
-
+		   	//INTERACTIVITY START HERE!!!!
 		   	//Define the event handling for the playAll button
 		   	playAll.on('click',function(){
 		   		var i =0; //define i outside of loop
 
 		   		playInterval=setInterval(function(){ //Take in a function, then repeat that function every defined interval(700ms in this case)
 		   			update(buttonPeriod[i]); //run update function to update graph for clicked year
-		   			i++; //increment I
+		   			i++; //increment i by 1
 
 		   			if(i>buttonPeriod.length-1){
-		   				clearInterval(playInterval); //kill loop if i becomes greator then length
-		   			}
-		   		},700);
+		   				clearInterval(playInterval); } //kill loop if i becomes greator then length
+		   				
+		   		},700); 
 		   		});
 		   	
 		   	//Update function
+		   	//Logic explaining add class "selected" to active button, remove it from non active
+		   	//button. Then filter data to show that years info  
 		   	function update(updatePeriod) {
-		   		 	d3.select(".selected")
-		   		 		.classed("selected", false); //Remove Class selected from the currently selected button
-		   		 	buttons.filter(function(d){return d== updatePeriod;}) //if Period equals the current update period then run below
-		   		 		.classed('selected',true) //add class selected to button
-		   		 	BirthData = data.filter(function(element){return element.year == updatePeriod}); //Show only data for current selected year
-		   		 	bars.data(BirthData,keys) //Re define bar width based on current value
-		   		 		.transition()
+		   		 	d3.select(".selected") 
+		   		 		.classed("selected", false); //Remove class "selected" from all buttons
+		   		 	buttons.filter(function(d){return d== updatePeriod;})
+		   		 		.classed('selected',true) // Assign class "selected" to button where d = UpdatePeriod
+		   		 	BirthData = data.filter(function(d){return d.year == updatePeriod}); //Show only data for current selected year
+		   		 	bars.data(BirthData,keys) //data join, index on keys function(age) 
+		   		 		.transition() //Use transition to re adjust bars vs enter/update/etc
 		   		 		.delay(500)
 		   		 		.duration(500)
-		   		 		.attr('width',function(d){return x(d.value)});
+		   		 		.attr('width',function(d){return x(d.value)})
 		   		 };	
 		   	});
 		   	</script>
