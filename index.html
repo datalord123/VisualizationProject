@@ -41,14 +41,12 @@
    		 			  width: 90px;
    		 			  padding-right: 10px; }
 
-   		 .explanation { font-size: 13px;
-   		 			  font-style: italic;
-   		 			  width:300px;
-   		 			  padding:25px;
-   		 			  border: 2px solid navy;
-   		 			  margin:25px;
-   		 			  float:right;
-   		 			  position:relative;}			  
+		.explanation { font-size: 13px; font-style: italic;
+					   width:300px; padding:25px;
+					   border: 2px solid navy; margin:25px;
+					   position:absolute;
+					   top: 150px;
+					   left: 500px}			  
 
    		 .clearfix { clear: both; }
 
@@ -149,15 +147,20 @@
 		   	var barGroup = chart.append('g')
 		   		.attr('class','bar');
 
+		   	var StartText = "It's an established rule that as countries become wealthier and more developed, the women in that country choose to have fewer children. This visualization is an attempt to provide more detail, in the case of the US, as to why this may be the case.";
+
+		   	var text;
+
 		   //Add the Explanation Text
+
 		   var Detail=body.append("div")
 		   		.attr("class","explanation")
 		   		.append('p')
-		   			.html("It's and established rule that as countries become more developed and wealthier, the women in that country choose to have fewer children. This visualization is a result my wanting to better understand, in the case of the US, why this may be happening.")
+		   			.html(StartText)
 			
 			var playInterval;
+
  			//Load the datafile, all code beyond this should be tied to data
-		   	
 		   	d3.csv('allData-Births.csv',function(error,data){
 			// filter data to show only where d.year = year defined above
 			var BirthData = data.filter(function(d) {return d.year == year});
@@ -200,14 +203,14 @@
 		   	playAll.on('click',function(){
 		   		var i =0; //define i outside of loop
 
-		   		playInterval=setInterval(function(){ //Take in a function, then repeat that function every defined interval(700ms in this case)
+		   		playInterval=setInterval(function(){ //Take in a function, then repeat that function every defined interval(2000ms in this case)
 		   			update(buttonPeriod[i]); //run update function to update graph for clicked year
 		   			i++; //increment i by 1
 
 		   			if(i>buttonPeriod.length-1){
 		   				clearInterval(playInterval); } //kill loop if i becomes greator then length
 		   				
-		   		},700); 
+		   		},1000); 
 		   		});
 		   	
 		   	//Update function
@@ -217,13 +220,37 @@
 		   		 	d3.select(".selected") 
 		   		 		.classed("selected", false); //Remove class "selected" from all buttons
 		   		 	buttons.filter(function(d){return d== updatePeriod;})
-		   		 		.classed('selected',true) // Assign class "selected" to button where d = UpdatePeriod
+		   		 		.classed('selected',true) // Assign class "selected" to button where d = UpdatePeriod	
 		   		 	BirthData = data.filter(function(d){return d.year == updatePeriod}); //Show only data for current selected year
+					
+					if (updatePeriod == '1975-1979') { 
+						text = StartText;} 
+
+					else if (updatePeriod == '1980-1984') { 
+						text = "Aids is first recognized by the CDC in 1981, and awareness becomes widespread through out the 80s. Condoms and Birth Control in general become more popular, leading to lower rates of teenage pregnancy.";} 
+
+					else if (updatePeriod == '1990-1994') { 
+						text = "Grunge. Teenage pregnancy temporarily goes up again....";} 
+
+					else if (updatePeriod == '2005-2009') { 
+						text = "The Great Recession begins in December 2007 and ends around June 2009. Profesional and married women hold off on having children.";} 	
+					else if (updatePeriod == '2010-2014') { 
+						text = "Women continue to hold off having children (The Recession's Baby Bust).";}
+					
+					else if (updatePeriod == '2015-2019') { 
+						text = "While women finally begin having the children they've put off, the theme of waiting until later in life to have kids is now firmly established (Beginning of projected data).";}
+
+					else if (updatePeriod == '2045-2049') { 
+						text = "In 75 years the US is projected to have gone from having around 50% of it's births coming from women under the age of 24 to having OVER 85% of births come from women over the age of 24. This is a huge shift. Possible reasons for this could be to greator availability of Birth control, increased levels of education, higher rates of females in the workforce, a better awareness of good family planning, or just a combination of all of these factors. In any case, assuming this trend is non-specific for the US, and is just a feature of economies becoming more developed, it's great news for world health.";}						
+					else { text = "";} 
+
+					d3.select('.explanation').html(text)
+
 		   		 	bars.data(BirthData,keys) //data join, index on keys function(age) 
 		   		 		.transition() //Use transition to re adjust bars vs enter/update/etc
-		   		 		.delay(500)
 		   		 		.duration(500)
 		   		 		.attr('width',function(d){return x(d.value)})
+
 		   		 };	
 		   	});
 		   	</script>
