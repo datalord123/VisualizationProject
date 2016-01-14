@@ -43,9 +43,9 @@
 
    		 .explanation { font-size: 13px;
    		 			  font-style: italic;
-   		 			  width:600px;
+   		 			  width:300px;
    		 			  padding:25px;
-   		 			  border: 25px solid navy;
+   		 			  border: 2px solid navy;
    		 			  margin:25px;
    		 			  float:right;
    		 			  position:relative;}			  
@@ -89,7 +89,7 @@
 		   var xAxis = d3.svg.axis()
 		    			.scale(x)
 		    			.orient("top")
-		    			.ticks(8,'%');
+		    			.ticks(10,'%');
 
 		   var yAxis = d3.svg.axis()
 		   				 .scale(y)
@@ -153,7 +153,7 @@
 		   var Detail=body.append("div")
 		   		.attr("class","explanation")
 		   		.append('p')
-		   			.text('dfad')
+		   			.html("It's and established rule that as countries become more developed and wealthier, the women in that country choose to have fewer children. This visualization is a result my wanting to better understand, in the case of the US, why this may be happening.")
 			
 			var playInterval;
  			//Load the datafile, all code beyond this should be tied to data
@@ -188,8 +188,10 @@
 		   		.call(yAxis)
 		   		.attr('class','y axis')
 		   	
-		   	//Set up event handler on buttons
 		   	buttons.on('click',function(d){
+		   	///	if (d=='2045-2049') //Test Version
+		   	///		Detail.html('So we can see that since 1975...') ///Test Version
+		   				
 		   		update(d);
 		   		clearInterval(playInterval);}); //Enable Stop functionality
 
